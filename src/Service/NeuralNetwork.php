@@ -14,8 +14,8 @@ class NeuralNetwork
         private float $learningRate
     )
     {
-        $this->weightsInputToHidden = $this->createWeightsMatrix($this->hiddenNodes, $this->inputNodes);
-        $this->weightsHiddenToOutput = $this->createWeightsMatrix($this->outputNodes, $this->hiddenNodes);
+        $this->weightsInputToHidden = $this->createWeightsMatrixNormalDistribution($this->hiddenNodes, $this->inputNodes);
+        $this->weightsHiddenToOutput = $this->createWeightsMatrixNormalDistribution($this->outputNodes, $this->hiddenNodes);
     }
 
     public function getInputNodes(): int
@@ -58,15 +58,19 @@ class NeuralNetwork
 
     }
 
-    private function createWeightsMatrix(int $rows, int $cols)
-    {
+    private function createWeightsMatrixNormalDistribution(int $rows, int $cols, $mean = 0, $standard_deviation = 0.5) {
         $matrix = [];
-
         for ($i = 0; $i < $rows; $i++) {
             for ($j = 0; $j < $cols; $j++) {
-                $matrix[$i][$j] = mt_rand(-1000, 1000)/1000;
+                $u1 = mt_rand() / mt_getrandmax();
+                $u2 = mt_rand() / mt_getrandmax();
+                $z = sqrt(-2 * log($u1)) * cos(2 * pi() * $u2);
+                $normalized_z = ($z * $standard_deviation) + $mean;
+                $clamped_value = max(-0.99, min(0.99, $normalized_z));
+                $matrix[$i][$j] = $clamped_value;
             }
         }
         return $matrix;
     }
+
 }
