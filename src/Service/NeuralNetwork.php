@@ -55,7 +55,7 @@ class NeuralNetwork
 
     public function query(array $inputList): array
     {
-        $inputValues = $this->transpose($inputList);
+        $inputValues = $this->transposeVector($inputList);
         $hiddenInputs = $this->dotProduct($this->weightsInputToHidden, $inputValues);
         $hiddenOutputs = $this->doActivate($hiddenInputs);
 
@@ -86,7 +86,7 @@ class NeuralNetwork
 
     public function doActivate($vector): array
     {
-        return $this->calculateActivationValue($this->transpose($vector));
+        return $this->calculateActivationValue($this->transposeVector($vector));
     }
 
     private function createWeightsMatrixNormalDistribution(int $rows, int $cols, $mean = 0, $standard_deviation = 0.5): array
@@ -114,7 +114,7 @@ class NeuralNetwork
         return $result;
     }
 
-    private function transpose($vector)
+    private function transposeVector($vector)
     {
         if (count($vector) > 1 && is_numeric($vector[0])) {
             $transposedVector = array_map(fn($x) => [$x], $vector);

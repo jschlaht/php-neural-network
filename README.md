@@ -28,9 +28,17 @@ For testing that all matrix values are in range between -1 and 1 I found a nice 
 * `min(array_map('min', $array))`
 * `max(array_map('max', $array))`
 
-After that I found an example how to implement normal distribution with Box-Muller transofrm on this pages:
+After that I found an example how to implement normal distribution with Box-Muller transform on this pages:
 
 * [PHP example for Box-Muller transform](https://www.php.net/manual/en/function.stats-rand-gen-normal.php)
 * [Box-Muller transform](https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform)
 
 As second option I will try a PHP-ML library or maybe other one, google knows different ways to create matrix in PHP.
+
+Dot product calculation is done with three for-loops and check for right dimensions, Claude 3 Haiku LLM was a big helper here :-)
+
+The same with sigmoid activation function, but only with one loop because I assume that only vectors are used for this calculation.
+
+Not so easy was implementing for transpose function, from AI I get a hint with array_map function, but this doesn't work in the same way for one dimension arrays like this [1.0, 0.5, -1.5].
+
+Now we can start with training...
