@@ -33,8 +33,8 @@ class NeuralNetworkTest extends TestCase
         $this->assertEquals(count($weightsInputToHidden[0]), $numberOfInputNodes);
         $this->assertEquals(count($weightsHiddenToOutout[0]), $numberOfHiddenNodes);
 
-        $min = min(array_map('min', $weightsInputToHidden));
-        $max = max(array_map('max', $weightsInputToHidden));
+        #$min = min(array_map('min', $weightsInputToHidden));
+        #$max = max(array_map('max', $weightsInputToHidden));
 
         $this->assertTrue(min(array_map('min', $weightsInputToHidden)) > -1);
         $this->assertTrue(max(array_map('max', $weightsInputToHidden)) < 1);
@@ -148,6 +148,5 @@ class NeuralNetworkTest extends TestCase
         $result = $neuralNetwork->query($inputList);
 
         $this->assertIsArray($result);
-        var_dump($result);
     }
 }
