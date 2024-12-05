@@ -48,6 +48,16 @@ class NeuralNetwork
         return $this->weightsHiddenToOutput;
     }
 
+    public function setWeightsInputToHidden(array $weightsInputToHidden): void
+    {
+        $this->weightsInputToHidden = $weightsInputToHidden;
+    }
+
+    public function setWeightsHiddenToOutput(array $weightsHiddenToOutput): void
+    {
+        $this->weightsHiddenToOutput = $weightsHiddenToOutput;
+    }
+
     public function train(array $inputList, array $targetList): void
     {
         $inputValues = $this->transposeVector($inputList);
@@ -55,7 +65,8 @@ class NeuralNetwork
 
         $finalOutputs = $this->query($inputList);
         $outputsError = $this->calculateDiff($targetValues, $finalOutputs);
-        $hiddenErrors = $this->dotProduct($this->weightsHiddenToOutput, $outputsError);
+        $hiddenErrors = $this->dotProduct($this->transponseMatrix($this->weightsHiddenToOutput), $outputsError);
+        var_dump($hiddenErrors);
     }
 
     public function query(array $inputList): array
@@ -131,6 +142,11 @@ class NeuralNetwork
             $transposedVector = $vector;
         }
         return $transposedVector;
+    }
+
+    private function transponseMatrix($matrix)
+    {
+        return array_map(null, ...$matrix);
     }
 
     private function calculateDiff(array $target, array $final): array

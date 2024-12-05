@@ -91,15 +91,15 @@ class NeuralNetworkTest extends TestCase
     {
         $neuralNetwork = new NeuralNetwork(3,3,3,0.3);
 
-        $matrix1 = array(
-            array(1, 2, 3),
-            array(4, 5, 6),
-        );
+        $matrix1 = [
+            [1, 2, 3],
+            [4, 5, 6],
+        ];
 
-        $matrix2 = array(
-            array(7, 8, 9),
-            array(10, 11, 12),
-        );
+        $matrix2 = [
+            [7, 8, 9],
+            [10, 11, 12],
+        ];
 
         $this->expectExceptionMessage("Matrix dimensions do not match");
         $this->expectException(\Exception::class);
