@@ -53,12 +53,44 @@ class NeuralNetwork
 
     }
 
-    public function query()
+    public function query(array $inputList): array
     {
+        $inputValues = $this->transpose($inputList);
+        $hiddenInputs = $this->dotProduct($this->weightsInputToHidden, $inputValues);
+        $hiddenOutputs = $this->doActivate($hiddenInputs);
 
+        $finalInputs = $this->dotProduct($this->weightsHiddenToOutput, $hiddenOutputs);
+        $finalOutputs = $this->doActivate($finalInputs);
+
+        return $finalOutputs;
     }
 
-    private function createWeightsMatrixNormalDistribution(int $rows, int $cols, $mean = 0, $standard_deviation = 0.5) {
+    public function dotProduct(array $matrix1, array $matrix2): array
+    {
+        if (count($matrix1[0]) != count($matrix2)) {
+            throw new \Exception("Matrix dimensions do not match");
+        }
+        $result = array();
+        for ($i = 0; $i < count($matrix1); $i++) {
+            $result[$i] = array();
+            for ($j = 0; $j < count($matrix2[0]); $j++) {
+                $sum = 0;
+                for ($k = 0; $k < count($matrix2); $k++) {
+                    $sum += $matrix1[$i][$k] * $matrix2[$k][$j];
+                }
+                $result[$i][$j] = $sum;
+            }
+        }
+        return $result;
+    }
+
+    public function doActivate($vector): array
+    {
+        return $this->calculateActivationValue($this->transpose($vector));
+    }
+
+    private function createWeightsMatrixNormalDistribution(int $rows, int $cols, $mean = 0, $standard_deviation = 0.5): array
+    {
         $matrix = [];
         for ($i = 0; $i < $rows; $i++) {
             for ($j = 0; $j < $cols; $j++) {
@@ -73,4 +105,22 @@ class NeuralNetwork
         return $matrix;
     }
 
+    private function calculateActivationValue($vector): array
+    {
+        $result = array();
+        for ($i = 0; $i < count($vector); $i++) {
+            $result[$i][0] = round(1 / (1 + exp(-$vector[$i][0])), 3);
+        }
+        return $result;
+    }
+
+    private function transpose($vector)
+    {
+        if (count($vector) > 1 && is_numeric($vector[0])) {
+            $transposedVector = array_map(fn($x) => [$x], $vector);
+        } else {
+            $transposedVector = $vector;
+        }
+        return $transposedVector;
+    }
 }
