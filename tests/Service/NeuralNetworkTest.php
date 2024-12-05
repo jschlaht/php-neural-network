@@ -149,4 +149,34 @@ class NeuralNetworkTest extends TestCase
 
         $this->assertIsArray($result);
     }
+    public function testTrainMethod()
+    {
+        $neuralNetwork = new NeuralNetwork(3,3,3,0.3);
+        $inputList = array(1.0, 0.5, -1.5);
+        $targetList = array(2.0, 1.5, -0.5);
+        $neuralNetwork->train($inputList, $targetList);
+    }
+
+    public function testCalculatingDifference()
+    {
+        $neuralNetwork = new NeuralNetwork(3,3,3,0.3);
+        $matrix1 = array(
+            array(10),
+            array(15),
+            array(20),
+        );
+        $matrix2 = array(
+            array(8),
+            array(11),
+            array(15),
+        );
+        $matrix3 = array(
+            array(2),
+            array(4),
+            array(5),
+        );
+
+        $result = $neuralNetwork->doCalculateDifference($matrix1, $matrix2);
+        $this->assertSame($matrix3, $result);
+    }
 }
