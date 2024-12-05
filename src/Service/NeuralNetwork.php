@@ -6,6 +6,12 @@ class NeuralNetwork
 {
     private array $weightsInputToHidden;
     private array $weightsHiddenToOutput;
+    private array $hiddenInputs;
+    private array $hiddenOutputs;
+    private array $finalInputs;
+    private array $finalOutputs;
+    private array $outputErrors;
+    private array $hiddenErrors;
 
     public function __construct(
         private int $inputNodes,
@@ -60,25 +66,21 @@ class NeuralNetwork
 
     public function train(array $inputList, array $targetList): void
     {
-        $inputValues = $this->transposeVector($inputList);
         $targetValues = $this->transposeVector($targetList);
 
-        $finalOutputs = $this->query($inputList);
-        $outputsError = $this->calculateDiff($targetValues, $finalOutputs);
-        $hiddenErrors = $this->dotProduct($this->transponseMatrix($this->weightsHiddenToOutput), $outputsError);
-        var_dump($hiddenErrors);
+        $this->query($inputList);
+        $this->outputErrors = $this->calculateDiff($targetValues, $this->finalOutputs);
+        $this->hiddenErrors = $this->dotProduct($this->transponseMatrix($this->weightsHiddenToOutput), $this->outputErrors);
     }
 
-    public function query(array $inputList): array
+    public function query(array $inputList): void
     {
         $inputValues = $this->transposeVector($inputList);
-        $hiddenInputs = $this->dotProduct($this->weightsInputToHidden, $inputValues);
-        $hiddenOutputs = $this->doActivate($hiddenInputs);
+        $this->hiddenInputs = $this->dotProduct($this->weightsInputToHidden, $inputValues);
+        $this->hiddenOutputs = $this->doActivate($this->hiddenInputs);
 
-        $finalInputs = $this->dotProduct($this->weightsHiddenToOutput, $hiddenOutputs);
-        $finalOutputs = $this->doActivate($finalInputs);
-
-        return $finalOutputs;
+        $this->finalInputs = $this->dotProduct($this->weightsHiddenToOutput, $this->hiddenOutputs);
+        $this->finalOutputs = $this->doActivate($this->finalInputs);
     }
 
     public function dotProduct(array $matrix1, array $matrix2): array
