@@ -29,6 +29,36 @@ class NeuralNetwork
         return $this->inputNodes;
     }
 
+    public function getHiddenInputs(): array
+    {
+        return $this->hiddenInputs;
+    }
+
+    public function getHiddenOutputs(): array
+    {
+        return $this->hiddenOutputs;
+    }
+
+    public function getFinalInputs(): array
+    {
+        return $this->finalInputs;
+    }
+
+    public function getFinalOutputs(): array
+    {
+        return $this->finalOutputs;
+    }
+
+    public function getOutputErrors(): array
+    {
+        return $this->outputErrors;
+    }
+
+    public function getHiddenErrors(): array
+    {
+        return $this->hiddenErrors;
+    }
+
     public function getHiddenNodes(): int
     {
         return $this->hiddenNodes;
@@ -96,7 +126,7 @@ class NeuralNetwork
                 for ($k = 0; $k < count($matrix2); $k++) {
                     $sum += $matrix1[$i][$k] * $matrix2[$k][$j];
                 }
-                $result[$i][$j] = $sum;
+                $result[$i][$j] = round($sum,3);
             }
         }
         return $result;
@@ -154,7 +184,7 @@ class NeuralNetwork
     private function calculateDiff(array $target, array $final): array
     {
         $result = array_map(
-            fn($x, $y) => $x[0] - $y[0], $target, $final);
+            fn($x, $y) => round($x[0] - $y[0], 3), $target, $final);
         return $this->transposeVector($result);
     }
 }
