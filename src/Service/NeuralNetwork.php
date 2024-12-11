@@ -2,10 +2,24 @@
 
 namespace App\Service;
 
+use Exception;
+
 class NeuralNetwork
 {
     private array $weightsInputToHidden;
+    private array $deltaWeightsInputToHidden;
+
+    public function getDeltaWeightsInputToHidden(): array
+    {
+        return $this->deltaWeightsInputToHidden;
+    }
+
+    public function getDeltaWeightsHiddenToOutput(): array
+    {
+        return $this->deltaWeightsHiddenToOutput;
+    }
     private array $weightsHiddenToOutput;
+    private array $deltaWeightsHiddenToOutput;
     private array $hiddenInputs;
     private array $hiddenOutputs;
     private array $finalInputs;
@@ -94,15 +108,35 @@ class NeuralNetwork
         $this->weightsHiddenToOutput = $weightsHiddenToOutput;
     }
 
+    /**
+     * @throws Exception
+     */
     public function train(array $inputList, array $targetList): void
     {
         $targetValues = $this->transposeVector($targetList);
 
         $this->query($inputList);
         $this->outputErrors = $this->calculateDiff($targetValues, $this->finalOutputs);
-        $this->hiddenErrors = $this->dotProduct($this->transponseMatrix($this->weightsHiddenToOutput), $this->outputErrors);
+        $this->hiddenErrors = $this->dotProduct($this->transposeMatrix($this->weightsHiddenToOutput), $this->outputErrors);
+
+        $result1 = $this->elementWiseMatrixOperation($this->outputErrors, $this->finalOutputs);
+        $result2 = $this->scalarToMatrixOperation(1, $this->finalOutputs, 'subtract');
+        $result3 = $this->elementWiseMatrixOperation($result1, $result2);
+        $result4 = $this->dotProduct($result3, $this->transposeMatrix($this->hiddenOutputs));
+        $this->deltaWeightsHiddenToOutput = $this->scalarToMatrixOperation($this->learningRate, $result4);
+        $this->weightsHiddenToOutput = $this->elementWiseMatrixOperation($this->weightsHiddenToOutput, $this->deltaWeightsHiddenToOutput, 'add');
+
+        $result5 = $this->elementWiseMatrixOperation($this->hiddenErrors, $this->hiddenOutputs);
+        $result6 = $this->scalarToMatrixOperation(1, $this->hiddenOutputs, 'subtract');
+        $result7 = $this->elementWiseMatrixOperation($result5, $result6);
+        $result8 = $this->dotProduct($result7, $inputList);
+        $this->deltaWeightsInputToHidden = $this->scalarToMatrixOperation($this->learningRate, $result8);
+        $this->weightsInputToHidden = $this->elementWiseMatrixOperation($this->weightsInputToHidden, $this->deltaWeightsInputToHidden, 'add');
     }
 
+    /**
+     * @throws Exception
+     */
     public function query(array $inputList): void
     {
         $inputValues = $this->transposeVector($inputList);
@@ -176,7 +210,7 @@ class NeuralNetwork
         return $transposedVector;
     }
 
-    private function transponseMatrix($matrix)
+    private function transposeMatrix($matrix): array
     {
         return array_map(null, ...$matrix);
     }
@@ -186,5 +220,49 @@ class NeuralNetwork
         $result = array_map(
             fn($x, $y) => round($x[0] - $y[0], 3), $target, $final);
         return $this->transposeVector($result);
+    }
+
+    private function scalarToMatrixOperation(float $scalar, array $matrix, string $operation = 'multiply'): array
+    {
+        $result = [];
+
+        foreach ($matrix as $row) {
+            $newRow = [];
+            foreach ($row as $element) {
+                $newRow[] = match ($operation) {
+                    'divide' => $scalar / $element,
+                    'subtract' => $scalar - $element,
+                    'add' => $scalar + $element,
+                    default => $scalar * $element,
+                };
+            }
+            $result[] = $newRow;
+        }
+
+        return $result;
+    }
+
+    private function elementWiseMatrixOperation(array $matrix1, array $matrix2, string $operation = 'multiply'): array
+    {
+        if (count($matrix1) !== count($matrix2) || count($matrix1[0]) !== count($matrix2[0])) {
+            throw new Exception("Both matrices must have the same dimensions.");
+        }
+
+        $result = [];
+
+        for ($i = 0; $i < count($matrix1); $i++) {
+            $newRow = [];
+            for ($j = 0; $j < count($matrix1[0]); $j++) {
+                $newRow[] = match ($operation) {
+                    'divide' => $matrix1[$i][$j] / $matrix2[$i][$j],
+                    'subtract' => $matrix1[$i][$j] - $matrix2[$i][$j],
+                    'add' => $matrix1[$i][$j] + $matrix2[$i][$j],
+                    default => $matrix1[$i][$j] * $matrix2[$i][$j]
+                };
+            }
+            $result[] = $newRow;
+        }
+
+        return $result;
     }
 }
