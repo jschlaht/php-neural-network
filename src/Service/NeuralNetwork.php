@@ -129,7 +129,7 @@ class NeuralNetwork
         $result5 = $this->elementWiseMatrixOperation($this->hiddenErrors, $this->hiddenOutputs);
         $result6 = $this->scalarToMatrixOperation(1, $this->hiddenOutputs, 'subtract');
         $result7 = $this->elementWiseMatrixOperation($result5, $result6);
-        $result8 = $this->dotProduct($result7, $inputList);
+        $result8 = $this->dotProduct($result7, [$inputList]);
         $this->deltaWeightsInputToHidden = $this->scalarToMatrixOperation($this->learningRate, $result8);
         $this->weightsInputToHidden = $this->elementWiseMatrixOperation($this->weightsInputToHidden, $this->deltaWeightsInputToHidden, 'add');
     }
@@ -160,7 +160,7 @@ class NeuralNetwork
                 for ($k = 0; $k < count($matrix2); $k++) {
                     $sum += $matrix1[$i][$k] * $matrix2[$k][$j];
                 }
-                $result[$i][$j] = round($sum,3);
+                $result[$i][$j] = round($sum,8);
             }
         }
         return $result;
@@ -195,7 +195,7 @@ class NeuralNetwork
     {
         $result = array();
         for ($i = 0; $i < count($vector); $i++) {
-            $result[$i][0] = round(1 / (1 + exp(-$vector[$i][0])), 3);
+            $result[$i][0] = round(1 / (1 + exp(-$vector[$i][0])), 8);
         }
         return $result;
     }
@@ -218,7 +218,7 @@ class NeuralNetwork
     private function calculateDiff(array $target, array $final): array
     {
         $result = array_map(
-            fn($x, $y) => round($x[0] - $y[0], 3), $target, $final);
+            fn($x, $y) => round($x[0] - $y[0], 8), $target, $final);
         return $this->transposeVector($result);
     }
 
@@ -230,10 +230,10 @@ class NeuralNetwork
             $newRow = [];
             foreach ($row as $element) {
                 $newRow[] = match ($operation) {
-                    'divide' => $scalar / $element,
-                    'subtract' => $scalar - $element,
-                    'add' => $scalar + $element,
-                    default => $scalar * $element,
+                    'divide' => round($scalar / $element,8),
+                    'subtract' => round($scalar - $element,8),
+                    'add' => round($scalar + $element,8),
+                    default => round($scalar * $element,8),
                 };
             }
             $result[] = $newRow;
@@ -254,10 +254,10 @@ class NeuralNetwork
             $newRow = [];
             for ($j = 0; $j < count($matrix1[0]); $j++) {
                 $newRow[] = match ($operation) {
-                    'divide' => $matrix1[$i][$j] / $matrix2[$i][$j],
-                    'subtract' => $matrix1[$i][$j] - $matrix2[$i][$j],
-                    'add' => $matrix1[$i][$j] + $matrix2[$i][$j],
-                    default => $matrix1[$i][$j] * $matrix2[$i][$j]
+                    'divide' => round($matrix1[$i][$j] / $matrix2[$i][$j],8),
+                    'subtract' => round($matrix1[$i][$j] - $matrix2[$i][$j],8),
+                    'add' => round($matrix1[$i][$j] + $matrix2[$i][$j],8),
+                    default => round($matrix1[$i][$j] * $matrix2[$i][$j],8)
                 };
             }
             $result[] = $newRow;
